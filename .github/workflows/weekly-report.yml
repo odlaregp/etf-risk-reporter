@@ -1,0 +1,29 @@
+name: Weekly ETF Risk Report
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'  # Runs every Monday at 07:00 UTC
+  workflow_dispatch:      # Allow manual runs
+
+jobs:
+  run-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas requests
+      - name: Run ETF report
+        env:
+          HOLDINGS_URL: ${{ secrets.HOLDINGS_URL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python etf_report.py
